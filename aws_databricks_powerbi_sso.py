@@ -92,7 +92,7 @@
 # MAGIC - Switch to Power BI Desktop, Use the downloaded Power BI template file (**customer_uc_acl_dq_demo.pbit**) from the repo 
 # MAGIC - Fill in the parameters for catalog, schema, sql warehouse settings
 # MAGIC - Save the report and Publish to Power BI Service
-# MAGIC - Go to Power BI Service and check the semantic model data source credentials and verify that the setting "Report viewer can only access this data source with their own Power BI identities using DirectQuery." is available and configured.
+# MAGIC - Go to Power BI Service and check the semantic model data source credentials and verify that the setting **"Report viewer can only access this data source with their own Power BI identities using DirectQuery."** is available and configured.
 # MAGIC
 # MAGIC
 # MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/pbi_desktop_template.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
