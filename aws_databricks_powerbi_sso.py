@@ -33,7 +33,7 @@
 # DBTITLE 1,Creating a Catalog if it Does Not Exist
 # MAGIC %sql
 # MAGIC -- Comment out if you don't have permissions
-# MAGIC --CREATE CATALOG IF NOT EXISTS ${catalog};
+# MAGIC CREATE CATALOG IF NOT EXISTS ${catalog};
 
 # COMMAND ----------
 
