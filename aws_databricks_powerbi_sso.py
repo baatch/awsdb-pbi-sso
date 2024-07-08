@@ -1,45 +1,75 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # 🛡️ AWS Databricks + Power BI SSO
-# MAGIC <img src="https://github.com/dbalexp/aws-db-uc-pbi-sso/blob/main/doc/title_logo.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
+# MAGIC # AWS Databricks + Power BI SSO
+# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/title_logo.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
 # MAGIC
 # MAGIC In this demo, you'll learn how to use AWS Databricks and Power BI SSO to harness the power of Unity Catalog to secure your data at a more granular level using its *row-level* and *column-level* access control capabilities.
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC # Prerequisties
-# MAGIC Make sure all the prerequities on the infrastructure side have been completed
-# MAGIC
 # MAGIC
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC
-# MAGIC # Review demo customers table
+# MAGIC ## Demo Prerequisites
+# MAGIC - AWS Databricks with Unity Catalog, Power BI Desktop, Power BI Service, Entra ID
+# MAGIC
+# MAGIC - Self-enrollment for the private preview feature  https://docs.databricks.com/en/integrations/configure-aad-sso-powerbi.html
+# MAGIC
+# MAGIC - Permissions to create catalogs, schemas and tables in Databricks
+# MAGIC
+# MAGIC - Create 2 groups: **ap_demo_admin** and **ap_demo_fr**
+# MAGIC
+# MAGIC - Add yourself to the group **ap_demo_fr**
+# MAGIC
+# MAGIC
 
 # COMMAND ----------
 
-# DBTITLE 1,Set catalog to users and schema to alexander_phu
+# MAGIC %md
+# MAGIC ## 🧱 Setup
+
+# COMMAND ----------
+
+# DBTITLE 1,Creating a Catalog if it Does Not Exist
 # MAGIC %sql
-# MAGIC USE CATALOG ${catalog};
-# MAGIC USE SCHEMA ${schema};
+# MAGIC -- Comment out if you don't have permissions
+# MAGIC --CREATE CATALOG IF NOT EXISTS ${catalog};
+
+# COMMAND ----------
+
+# DBTITLE 1,Create Schema If Not Exists in SQL Query
+# MAGIC %sql
+# MAGIC -- Comment out if you don't have permissions
+# MAGIC CREATE SCHEMA IF NOT EXISTS ${schema};
+
+# COMMAND ----------
+
+# DBTITLE 1,Creating Customers Table from Parquet File in SQL
+# MAGIC %sql
+# MAGIC -- Create or replace the customers table in the specified catalog and schema
+# MAGIC -- The table is populated with data read from a Parquet file located at the specified path
+# MAGIC CREATE OR REPLACE TABLE ${catalog}.${schema}.customers AS 
+# MAGIC SELECT * FROM read_files('file:${repo_path}/data/customers.parquet', format => 'parquet');
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC # 🔎 Review customers table
 
 # COMMAND ----------
 
 # DBTITLE 1,Querying All Records from the Customers Table
 # MAGIC %sql
 # MAGIC -- Query the customers table
-# MAGIC SELECT * FROM customers;
+# MAGIC SELECT * FROM ${catalog}.${schema}.customers;
 
 # COMMAND ----------
 
 # DBTITLE 1,Counting the Number of Rows in the Customers Table
 # MAGIC %sql
 # MAGIC -- Query row count on customers table (68879)
-# MAGIC SELECT COUNT(*) FROM customers;
+# MAGIC SELECT COUNT(*) FROM ${catalog}.${schema}.customers;
 
 # COMMAND ----------
 
@@ -47,20 +77,21 @@
 # MAGIC %sql
 # MAGIC
 # MAGIC -- Query distinct country values from the customers table (3)
-# MAGIC SELECT DISTINCT(country) FROM customers;
+# MAGIC SELECT DISTINCT(country) FROM ${catalog}.${schema}.customers;
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC # Switch to Power BI
 # MAGIC
-# MAGIC <img src="https://github.com/dbalexp/aws-db-uc-pbi-sso/blob/main/doc/title_logo.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
+# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/pbi.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
 # MAGIC
 # MAGIC
 # MAGIC
 # MAGIC ## Option 1
 # MAGIC - Switch to Power BI Desktop, Use the downloaded Power BI template file from the repo 
 # MAGIC - Fill in the parameters for catalog, schema, sql warehouse settings
+# MAGIC - Save the report and Publish to Power BI Service
 # MAGIC
 # MAGIC
 # MAGIC
@@ -69,7 +100,7 @@
 # MAGIC - Sign in with Azure AD option and select Direct Query option.
 # MAGIC - Select the customers table
 # MAGIC - Build some visuals
-# MAGIC - Save the report, and Publish to Power BI Service. 
+# MAGIC - Save the report and Publish to Power BI Service. 
 # MAGIC
 # MAGIC
 # MAGIC
@@ -90,8 +121,8 @@
 
 # MAGIC %md
 # MAGIC
-# MAGIC # Set fine grained access control (RLS & CLS)
-# MAGIC Back in Databricks, let's define some fine grained access control like row level security and column level security
+# MAGIC # 🛡️ Set Fine Grained Access Control (RLS & CLS)
+# MAGIC Back in Databricks, let's define some fine grained access control using row level security and column level security
 
 # COMMAND ----------
 
@@ -131,20 +162,20 @@
 # MAGIC %sql
 # MAGIC
 # MAGIC -- Create new row filter function
-# MAGIC CREATE OR REPLACE FUNCTION region_filter_fr(region_param STRING) 
+# MAGIC CREATE OR REPLACE FUNCTION ${catalog}.${schema}.region_filter_fr(region_param STRING) 
 # MAGIC RETURN 
 # MAGIC   is_account_group_member('ap_demo_admin') OR  -- Admin can access all regions
 # MAGIC   region_param LIKE "FR%";                     -- Non-admins can only access regions containing 'FR'
 # MAGIC
 # MAGIC -- Grant access to all users to the function for the demo by making all account users owners
-# MAGIC GRANT ALL PRIVILEGES ON FUNCTION region_filter_fr TO `account users`;
+# MAGIC GRANT ALL PRIVILEGES ON FUNCTION ${catalog}.${schema}.region_filter_fr TO `account users`;
 
 # COMMAND ----------
 
 # MAGIC %sql
 # MAGIC -- Test Function region_filter_fr. 
 # MAGIC -- As expected, FR return true and USA returns false
-# MAGIC SELECT region_filter_fr('USA'), region_filter_fr('FR')
+# MAGIC --SELECT region_filter_fr('USA'), region_filter_fr('FR')
 # MAGIC
 # MAGIC
 
@@ -154,7 +185,7 @@
 # MAGIC %sql
 # MAGIC
 # MAGIC -- Set a row filter function on the 'customers' table to restrict access based on the 'country' column
-# MAGIC ALTER TABLE customers SET ROW FILTER region_filter_fr ON (country);
+# MAGIC ALTER TABLE ${catalog}.${schema}.customers SET ROW FILTER ${catalog}.${schema}.region_filter_fr ON (country);
 
 # COMMAND ----------
 
@@ -164,18 +195,20 @@
 # MAGIC ## Column Level access control (Optional)
 # MAGIC
 # MAGIC Similarly, column-level access control helps you mask or anonymise the data that is in certain columns of your table, depending on the user or service principal that is trying to access it. This is typically used to mask or remove sensitive PII informations from your end users (email, SSN...).
+# MAGIC
+# MAGIC
 
 # COMMAND ----------
 
 # DBTITLE 1,Create Simple Mask Function
 # MAGIC %sql
 # MAGIC -- Create a SQL function for a simple column mask
-# MAGIC CREATE OR REPLACE FUNCTION simple_mask(column_value STRING)
+# MAGIC CREATE OR REPLACE FUNCTION ${catalog}.${schema}.simple_mask(column_value STRING)
 # MAGIC RETURN 
 # MAGIC   IF(is_account_group_member('ap_demo_admin'), column_value, "****");
 # MAGIC
 # MAGIC -- Grant all privileges on the function to account users (only for demo purposes)
-# MAGIC GRANT ALL PRIVILEGES ON FUNCTION simple_mask TO `account users`; -- only for demo, don't do that in prod as everybody could change the function
+# MAGIC GRANT ALL PRIVILEGES ON FUNCTION ${catalog}.${schema}.simple_mask TO `account users`; -- only for demo, don't do that in prod as everybody could change the function
 
 # COMMAND ----------
 
@@ -183,24 +216,34 @@
 # MAGIC %sql
 # MAGIC -- Applying our simple masking function to the 'address' column in the 'customers' table
 # MAGIC ALTER TABLE
-# MAGIC   customers
+# MAGIC   ${catalog}.${schema}.customers
 # MAGIC ALTER COLUMN
 # MAGIC   address
 # MAGIC SET
-# MAGIC   MASK simple_mask;
+# MAGIC   MASK ${catalog}.${schema}.simple_mask;
 
 # COMMAND ----------
 
 # MAGIC %md 
 # MAGIC
 # MAGIC ## Query table in Databricks to verify if RLS and CLS are applied
+# MAGIC
+# MAGIC <br>
+# MAGIC
+# MAGIC <img src="https://github.com/databricks-demos/dbdemos-resources/blob/main/images/product/uc/acls/table_uc_cls.png?raw=true" width="200" style="float: right; margin-top: 20; margin-right: 20; margin-left: 20" alt="databricks-demos"/>
+# MAGIC
+# MAGIC
+# MAGIC <img src="https://github.com/databricks-demos/dbdemos-resources/blob/main/images/product/uc/acls/table_uc_rls.png?raw=true" width="200" style="float: right; margin-top: 20; margin-right: 20" alt="databricks-demos"/>
+# MAGIC
+# MAGIC <br>
+# MAGIC <br>
 
 # COMMAND ----------
 
 # DBTITLE 1,Query the Customers table
 # MAGIC %sql
-# MAGIC -- Query the customers table (verify CLS on column adress)
-# MAGIC SELECT * FROM customers;
+# MAGIC -- Query the customers table (verify country column only shows FR and adress column is masked)
+# MAGIC SELECT * FROM ${catalog}.${schema}.customers;
 # MAGIC
 
 # COMMAND ----------
@@ -208,7 +251,7 @@
 # DBTITLE 1,Table Row Count SQL Query
 # MAGIC %sql
 # MAGIC -- Query the total number of rows in the customers table (23119)
-# MAGIC SELECT count(*) FROM customers;
+# MAGIC SELECT COUNT(*) FROM ${catalog}.${schema}.customers;
 
 # COMMAND ----------
 
@@ -216,7 +259,7 @@
 # MAGIC %sql
 # MAGIC
 # MAGIC -- Query distinct country values from the customers table (1)
-# MAGIC SELECT DISTINCT(country) FROM customers;
+# MAGIC SELECT DISTINCT(country) FROM ${catalog}.${schema}.customers;
 # MAGIC
 # MAGIC
 
