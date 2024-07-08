@@ -50,6 +50,8 @@
 # MAGIC -- The table is populated with data read from a Parquet file located at the specified path
 # MAGIC CREATE OR REPLACE TABLE ${catalog}.${schema}.customers AS 
 # MAGIC SELECT * FROM read_files('file:${repo_path}/data/customers.parquet', format => 'parquet');
+# MAGIC
+# MAGIC GRANT SELECT ON TABLE ${catalog}.${schema}.customers TO `account users`;
 
 # COMMAND ----------
 
@@ -82,11 +84,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # Switch to Power BI
-# MAGIC
-# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/pbi.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
-# MAGIC
-# MAGIC
+# MAGIC # Switch to Power BI Desktop
 # MAGIC
 # MAGIC ## Option 1
 # MAGIC - Switch to Power BI Desktop, Use the downloaded Power BI template file from the repo 
@@ -94,13 +92,10 @@
 # MAGIC - Save the report and Publish to Power BI Service
 # MAGIC
 # MAGIC
+# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/pbi_desktop_template.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
 # MAGIC
-# MAGIC ## Option 2
-# MAGIC - Switch to Power BI Desktop and create a report using the Azure Databricks Connector.
-# MAGIC - Sign in with Azure AD option and select Direct Query option.
-# MAGIC - Select the customers table
-# MAGIC - Build some visuals
-# MAGIC - Save the report and Publish to Power BI Service. 
+# MAGIC
+# MAGIC
 # MAGIC
 # MAGIC
 # MAGIC
@@ -114,8 +109,16 @@
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## [Check Power BI Report](https://app.powerbi.com/groups/ac0fa11c-fc3a-43f9-9873-fe62816f439d/reports/8d5eb330-a831-4190-9789-000deeb66b94/ReportSection?experience=power-bi)
+# MAGIC %md 
+# MAGIC
+# MAGIC ## Option 2 (Optional)
+# MAGIC - Switch to Power BI Desktop and create a report using the Azure Databricks Connector.
+# MAGIC - Sign in with Azure AD option and select Direct Query option.
+# MAGIC - Select the customers table
+# MAGIC - Build some visuals
+# MAGIC - Save the report and Publish to Power BI Service. 
+# MAGIC
+# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/pbi.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
 
 # COMMAND ----------
 
@@ -190,11 +193,12 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC <img src="https://github.com/databricks-demos/dbdemos-resources/blob/main/images/product/uc/acls/table_uc_cls.png?raw=true" width="200" style="float: right; margin-top: 20; margin-right: 20; margin-left: 20" alt="databricks-demos"/>
-# MAGIC
-# MAGIC ## Column Level access control (Optional)
+# MAGIC ## Column Level access control
 # MAGIC
 # MAGIC Similarly, column-level access control helps you mask or anonymise the data that is in certain columns of your table, depending on the user or service principal that is trying to access it. This is typically used to mask or remove sensitive PII informations from your end users (email, SSN...).
+# MAGIC <br>
+# MAGIC
+# MAGIC <img src="https://github.com/databricks-demos/dbdemos-resources/blob/main/images/product/uc/acls/table_uc_cls.png?raw=true" width="200" style="float: right; margin-top: 20; margin-right: 20; margin-left: 20" alt="databricks-demos"/>
 # MAGIC
 # MAGIC
 
@@ -268,11 +272,10 @@
 # MAGIC %md
 # MAGIC # Switch to Power BI Service
 # MAGIC
-# MAGIC <img src="https://github.com/dbalexp/aws-db-uc-pbi-sso/blob/main/doc/title_logo.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
-# MAGIC
 # MAGIC - Switch to Power BI Service and refresh the Power BI report. 
 # MAGIC - Verify that RLS and CLS has kicked in
 # MAGIC
+# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/pbi_service_rls.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
 # MAGIC
 # MAGIC
 # MAGIC
@@ -285,6 +288,10 @@
 # MAGIC
 # MAGIC ## Check Databricks Query History
 # MAGIC Switch to the Query History tab to verify the queries being run on the SQL Warehouse from the Power BI Service
+# MAGIC
+# MAGIC <br>
+# MAGIC
+# MAGIC <img src="https://github.com/baatch/awsdb-pbi-sso/blob/main/docs/query_history.png?raw=true" width="400" style="float: right; margin-top: 20; margin-right: 20" alt="A"/>
 
 # COMMAND ----------
 
