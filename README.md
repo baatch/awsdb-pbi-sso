@@ -8,5 +8,6 @@ This repo contains the notebook and Power BI template that can be used together 
 In order to use SSO passthrough for AWS Databricks customers who are using Entra ID as Oauth mechanism, you will need to
 * Do self-enrollment for this private preview feature  https://docs.databricks.com/en/integrations/configure-aad-sso-powerbi.html
 * Use Azure Databricks Connector, watch the below video for the difference between different Databricks connectors in Power BI
+  
 [![Databricks connectors on Power BI](https://img.youtube.com/vi/YQU5TfgJMzs/0.jpg)](https://www.youtube.com/watch?v=YQU5TfgJMzs)
 * Use **Direct Query** Storage Mode for Power BI Semantic Model on top of Databricks
