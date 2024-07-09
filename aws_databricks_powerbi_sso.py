@@ -30,6 +30,15 @@
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC CREATE WIDGET TEXT catalog DEFAULT "";
+# MAGIC
+# MAGIC CREATE WIDGET TEXT schema DEFAULT "";
+# MAGIC
+# MAGIC CREATE WIDGET TEXT repo_path DEFAULT "/Workspace/Users/%username%/awsdb-pbi-sso";
+
+# COMMAND ----------
+
 # DBTITLE 1,Creating a Catalog if it Does Not Exist
 # MAGIC %sql
 # MAGIC -- Comment out if you don't have permissions
